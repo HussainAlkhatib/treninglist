@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Trening – Ukentlig sjekkliste</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: #eef2f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 20px 16px 48px;
+            color: #1c2e3a;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .site-header {
+            margin-bottom: 24px;
+        }
+        h1 {
+            font-size: 1.85rem;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+            color: #1a4b6e;
+            line-height: 1.2;
+        }
+        .regel {
+            font-size: 0.85rem;
+            color: #4a6f86;
+            margin-top: 6px;
+            border-left: 3px solid #6c9eb3;
+            padding-left: 12px;
+        }
+
+        /* reset knapp */
+        .reset-knapp {
+            background: white;
+            border: 1px solid #cbdae2;
+            padding: 8px 18px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #2c627e;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+            display: inline-block;
+        }
+        .reset-knapp:hover {
+            background-color: #e6edf2;
+            border-color: #9bb3c2;
+        }
+        .reset-knapp:active {
+            transform: scale(0.97);
+        }
+
+        /* dagskort */
+        .dag-kort {
+            background: white;
+            border-radius: 28px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            transition: all 0.1s ease;
+            border: 1px solid #dce5ec;
+        }
+
+        .dag-header {
+            background: #f6fafd;
+            padding: 14px 20px;
+            border-bottom: 1px solid #e2eef5;
+        }
+        .dag-navn {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f3f57;
+            letter-spacing: -0.2px;
+        }
+
+        /* hvile */
+        .hvile-boks {
+            background: #fff6e5;
+            padding: 20px;
+            text-align: center;
+            font-weight: 500;
+            color: #9b7b3c;
+            font-size: 1rem;
+            border-left: 4px solid #e2c284;
+        }
+
+        /* øvelser liste */
+        .ovelser-liste {
+            padding: 8px 16px 18px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .ovelse-rad {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            background: #ffffff;
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf3f8;
+        }
+
+        .ovelse-info {
+            flex: 2;
+            min-width: 160px;
+        }
+        .ovelse-tittel {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #1c485f;
+        }
+        .sett-rep-tekst {
+            font-size: 0.7rem;
+            color: #658296;
+            margin-top: 4px;
+            letter-spacing: -0.2px;
+        }
+
+        /* 3 sett checkboxer */
+        .sett-gruppe {
+            display: flex;
+            gap: 12px;
+            background: #f9fdfe;
+            padding: 6px 12px;
+            border-radius: 50px;
+            flex-wrap: wrap;
+        }
+        .sett-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 40px;
+            border: 1px solid #cbdde6;
+            box-shadow: 0 1px 0 #eef3f7;
+        }
+        .sett-item input {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+            accent-color: #2b8b6e;
+        }
+        .sett-item label {
+            font-weight: 500;
+            color: #2d5b74;
+            cursor: pointer;
+        }
+
+        /* pushups egen seksjon */
+        .pushups-seksjon {
+            background: #f1faf7;
+            border-radius: 20px;
+            padding: 12px 12px 8px 12px;
+            margin-top: 8px;
+            border-left: 5px solid #479f82;
+        }
+        .notis {
+            font-size: 0.68rem;
+            color: #2d705b;
+            margin-top: 8px;
+            padding-left: 4px;
+        }
+
+        /* mobil optimalisering */
+        @media (max-width: 550px) {
+            body {
+                padding: 16px 12px 40px;
+            }
+            .ovelse-rad {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .sett-gruppe {
+                align-self: flex-start;
+            }
+            .dag-navn {
+                font-size: 1.35rem;
+            }
+            .ovelse-tittel {
+                font-size: 0.95rem;
+            }
+        }
+
+        footer {
+            margin-top: 28px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #7d98ab;
+            border-top: 1px solid #d4e2ec;
+            padding-top: 20px;
+        }
+        button {
+            background: none;
+            border: none;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="site-header">
+        <h1>Ukeplan trening</h1>
+        <div class="regel">3 sett · 8–12 repetisjoner · kryss av for hvert sett</div>
+    </div>
+
+    <button class="reset-knapp" id="nullstillKnapp">Fjern alle avkrysninger</button>
+
+    <div id="ukeContainer"></div>
+    <footer>Onsdag = hviledag. Alle treningsdager avsluttes med armhevinger (3x8-12).</footer>
+</div>
+
+<script>
+    // ----- ØVELSESLISTE (enkel norsk) -----
+    const BRYST_TRICEPS = [
+        "Incline chest press",
+        "Pec fly",
+        "High to low cable fly",
+        "Triceps rope extensions",
+        "Overhead triceps (V-bar / straight bar)"
+    ];
+
+    const RYGG_BICEPS = [
+        "Lat pull down (smalt grep)",
+        "Close grip row",
+        "Chest supported row (øvre rygg)",
+        "Preacher curl maskin",
+        "Incline bicep curl",
+        "Rope hammer curls"
+    ];
+
+    const BEIN_SKULDRER = [
+        "Squat",
+        "Back extensions",
+        "Leg extension",
+        "Liggende leg curl",
+        "Legghevinger (calf raises)"
+    ];
+
+    const PUSHUPS_NAVN = "Armhevinger (push ups)";
+
+    // ------ UKEOPPSETT: kun Onsdag hvile, torsdag blir treningsdag ------
+    // Mandag: bryst/triceps, Tirsdag: rygg/biceps, Onsdag: HVIL, Torsdag: bein/skuldre,
+    // Fredag: bryst/triceps, Lørdag: rygg/biceps, Søndag: bein/skuldre
+    const ukePlan = [
+        { dag: "Mandag", type: "trening", ovelser: BRYST_TRICEPS, pushups: true },
+        { dag: "Tirsdag", type: "trening", ovelser: RYGG_BICEPS, pushups: true },
+        { dag: "Onsdag", type: "hvile" },
+        { dag: "Torsdag", type: "trening", ovelser: BEIN_SKULDRER, pushups: true },
+        { dag: "Fredag", type: "trening", ovelser: BRYST_TRICEPS, pushups: true },
+        { dag: "Lørdag", type: "trening", ovelser: RYGG_BICEPS, pushups: true },
+        { dag: "Søndag", type: "trening", ovelser: BEIN_SKULDRER, pushups: true }
+    ];
+
+    // Hjelpefunksjon: lag 3 sjekkbokser (sett 1,2,3)
+    function lagSettSjekkbokser() {
+        const div = document.createElement('div');
+        div.className = 'sett-gruppe';
+        for (let i = 1; i <= 3; i++) {
+            const id = `cb_${Date.now()}_${Math.random()}_${i}`;
+            const settDiv = document.createElement('div');
+            settDiv.className = 'sett-item';
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = id;
+            const label = document.createElement('label');
+            label.htmlFor = id;
+            label.textContent = `Sett ${i}`;
+            settDiv.appendChild(checkbox);
+            settDiv.appendChild(label);
+            div.appendChild(settDiv);
+        }
+        return div;
+    }
+
+    // Lager en rad for én øvelse
+    function lagOvelseRad(ovelseNavn) {
+        const rad = document.createElement('div');
+        rad.className = 'ovelse-rad';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'ovelse-info';
+        const tittel = document.createElement('div');
+        tittel.className = 'ovelse-tittel';
+        tittel.textContent = ovelseNavn;
+        const repTekst = document.createElement('div');
+        repTekst.className = 'sett-rep-tekst';
+        repTekst.textContent = '3 sett · 8–12 reps';
+        infoDiv.appendChild(tittel);
+        infoDiv.appendChild(repTekst);
+
+        const settBoks = lagSettSjekkbokser();
+
+        rad.appendChild(infoDiv);
+        rad.appendChild(settBoks);
+        return rad;
+    }
+
+    // Seksjon for pushups (etter alle øvelser)
+    function lagPushupsSeksjon() {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'pushups-seksjon';
+        
+        const rad = document.createElement('div');
+        rad.className = 'ovelse-rad';
+        rad.style.borderBottom = 'none';
+        rad.style.paddingBottom = '0';
+        
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'ovelse-info';
+        const tittel = document.createElement('div');
+        tittel.className = 'ovelse-tittel';
+        tittel.style.color = '#2a7a62';
+        tittel.style.fontWeight = '700';
+        tittel.textContent = PUSHUPS_NAVN;
+        const repTekst = document.createElement('div');
+        repTekst.className = 'sett-rep-tekst';
+        repTekst.textContent = '3 sett · 8–12 reps (etter hovedøvelsene)';
+        infoDiv.appendChild(tittel);
+        infoDiv.appendChild(repTekst);
+        
+        const settBoks = lagSettSjekkbokser();
+        rad.appendChild(infoDiv);
+        rad.appendChild(settBoks);
+        
+        const litenNotis = document.createElement('div');
+        litenNotis.className = 'notis';
+        litenNotis.textContent = 'Gjør armhevinger etter alle øvelser, 3 x 8-12.';
+        
+        wrapper.appendChild(rad);
+        wrapper.appendChild(litenNotis);
+        return wrapper;
+    }
+
+    // Opprett dagskort
+    function lagDagKort(dagData) {
+        const kort = document.createElement('div');
+        kort.className = 'dag-kort';
+
+        // Header
+        const header = document.createElement('div');
+        header.className = 'dag-header';
+        const navnSpan = document.createElement('div');
+        navnSpan.className = 'dag-navn';
+        navnSpan.textContent = dagData.dag;
+        header.appendChild(navnSpan);
+        kort.appendChild(header);
+
+        if (dagData.type === 'hvile') {
+            const hvilDiv = document.createElement('div');
+            hvilDiv.className = 'hvile-boks';
+            hvilDiv.textContent = 'Hviledag - ingen trening. Restitusjon.';
+            kort.appendChild(hvilDiv);
+        } 
+        else if (dagData.type === 'trening') {
+            const listeDiv = document.createElement('div');
+            listeDiv.className = 'ovelser-liste';
+            
+            // Hovedøvelser
+            dagData.ovelser.forEach(ovelse => {
+                listeDiv.appendChild(lagOvelseRad(ovelse));
+            });
+            
+            // Push-ups etter alle (alltid true for treningsdager)
+            if (dagData.pushups) {
+                listeDiv.appendChild(lagPushupsSeksjon());
+            }
+            kort.appendChild(listeDiv);
+        }
+        return kort;
+    }
+
+    // Bygg hele ukens plan
+    function byggUkeplan() {
+        const container = document.getElementById('ukeContainer');
+        container.innerHTML = '';
+        ukePlan.forEach(dag => {
+            const kort = lagDagKort(dag);
+            container.appendChild(kort);
+        });
+    }
+
+    // Nullstill alle haker
+    function nullstillAlleHaker() {
+        const alleCheckbox = document.querySelectorAll('#ukeContainer input[type="checkbox"]');
+        alleCheckbox.forEach(cb => {
+            cb.checked = false;
+        });
+    }
+
+    // initialiser
+    function init() {
+        byggUkeplan();
+        const resetBtn = document.getElementById('nullstillKnapp');
+        if (resetBtn) {
+            resetBtn.addEventListener('click', nullstillAlleHaker);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
