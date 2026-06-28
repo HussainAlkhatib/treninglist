@@ -787,8 +787,13 @@
             }
 
             function handleReset() {
-                if (!confirm('Tilbakestill til standard øvelser?')) return;
-                state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                if (!confirm('Nullstill alle avkryssinger?')) return;
+                // Fjern alle done-markeringer, men behold øvelsene
+                state.days.forEach(day => {
+                    day.exercises.forEach(ex => {
+                        ex.done = false;
+                    });
+                });
                 saveState();
                 render();
             }
