@@ -1,440 +1,950 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="nb">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Trening – Ukentlig sjekkliste</title>
-    <link rel="manifest" href="manifest.json">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Trening">
-<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2936/2936886.png">
-
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('Service Worker OK'))
-        .catch(err => console.log('Service Worker Error', err));
-    });
-  }
-</script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ukeplan</title>
+    <link rel="manifest" href="manifest.json" />
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --surface-hover: #f8fafc;
+            --text: #0f172a;
+            --text-secondary: #475569;
+            --border: #e2e8f0;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --radius: 16px;
+            --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
         }
 
         body {
-            background: #eef2f5;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding: 20px 16px 48px;
-            color: #1c2e3a;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 24px 16px;
+            transition: background var(--transition), color var(--transition);
         }
 
-        .container {
-            max-width: 700px;
+        .app {
+            max-width: 800px;
             margin: 0 auto;
         }
 
         /* header */
-        .site-header {
-            margin-bottom: 24px;
-        }
-        h1 {
-            font-size: 1.85rem;
-            font-weight: 600;
-            letter-spacing: -0.3px;
-            color: #1a4b6e;
-            line-height: 1.2;
-        }
-        .regel {
-            font-size: 0.85rem;
-            color: #4a6f86;
-            margin-top: 6px;
-            border-left: 3px solid #6c9eb3;
-            padding-left: 12px;
-        }
-
-        /* reset knapp */
-        .reset-knapp {
-            background: white;
-            border: 1px solid #cbdae2;
-            padding: 8px 18px;
-            border-radius: 60px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #2c627e;
-            cursor: pointer;
-            transition: 0.2s;
-            margin-bottom: 20px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-            display: inline-block;
-        }
-        .reset-knapp:hover {
-            background-color: #e6edf2;
-            border-color: #9bb3c2;
-        }
-        .reset-knapp:active {
-            transform: scale(0.97);
-        }
-
-        /* dagskort */
-        .dag-kort {
-            background: white;
-            border-radius: 28px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-            overflow: hidden;
-            transition: all 0.1s ease;
-            border: 1px solid #dce5ec;
-        }
-
-        .dag-header {
-            background: #f6fafd;
-            padding: 14px 20px;
-            border-bottom: 1px solid #e2eef5;
-        }
-        .dag-navn {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #0f3f57;
-            letter-spacing: -0.2px;
-        }
-
-        /* hvile */
-        .hvile-boks {
-            background: #fff6e5;
-            padding: 20px;
-            text-align: center;
-            font-weight: 500;
-            color: #9b7b3c;
-            font-size: 1rem;
-            border-left: 4px solid #e2c284;
-        }
-
-        /* øvelser liste */
-        .ovelser-liste {
-            padding: 8px 16px 18px 16px;
+        .header {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .ovelse-rad {
-            display: flex;
-            flex-wrap: wrap;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            background: #ffffff;
-            padding: 8px 0;
-            border-bottom: 1px solid #ecf3f8;
-        }
-
-        .ovelse-info {
-            flex: 2;
-            min-width: 160px;
-        }
-        .ovelse-tittel {
-            font-weight: 600;
-            font-size: 1rem;
-            color: #1c485f;
-        }
-        .sett-rep-tekst {
-            font-size: 0.7rem;
-            color: #658296;
-            margin-top: 4px;
-            letter-spacing: -0.2px;
-        }
-
-        /* 3 sett checkboxer */
-        .sett-gruppe {
-            display: flex;
-            gap: 12px;
-            background: #f9fdfe;
-            padding: 6px 12px;
-            border-radius: 50px;
+            margin-bottom: 28px;
             flex-wrap: wrap;
+            gap: 12px;
         }
-        .sett-item {
+
+        .header-left {
             display: flex;
             align-items: center;
-            gap: 6px;
-            font-size: 0.85rem;
-            background: white;
-            padding: 4px 12px;
+            gap: 12px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 8px;
+            transition: background var(--transition);
+        }
+
+        .header h1:hover {
+            background: var(--surface-hover);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
             border-radius: 40px;
-            border: 1px solid #cbdde6;
-            box-shadow: 0 1px 0 #eef3f7;
-        }
-        .sett-item input {
-            width: 18px;
-            height: 18px;
-            margin: 0;
+            font-weight: 600;
+            font-size: 14px;
             cursor: pointer;
-            accent-color: #2b8b6e;
+            background: var(--surface);
+            color: var(--text);
+            box-shadow: var(--shadow);
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--border);
         }
-        .sett-item label {
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            border-color: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border-color: var(--danger);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            border-color: #dc2626;
+        }
+
+        .btn-edit {
+            background: var(--surface);
+            color: var(--text);
+            border: 2px dashed var(--border);
+        }
+
+        .btn-edit.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        /* edit mode indicator */
+        .edit-badge {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 2px 12px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+            animation: pulse-badge 1.8s infinite;
+        }
+
+        @keyframes pulse-badge {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.6;
+                transform: scale(0.96);
+            }
+        }
+
+        /* day cards */
+        .day-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 8px;
+        }
+
+        .day-card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+            animation: slide-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        .day-card:hover {
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.05);
+        }
+
+        .day-card:nth-child(1) {
+            animation-delay: 0.02s;
+        }
+        .day-card:nth-child(2) {
+            animation-delay: 0.06s;
+        }
+        .day-card:nth-child(3) {
+            animation-delay: 0.10s;
+        }
+        .day-card:nth-child(4) {
+            animation-delay: 0.14s;
+        }
+        .day-card:nth-child(5) {
+            animation-delay: 0.18s;
+        }
+        .day-card:nth-child(6) {
+            animation-delay: 0.22s;
+        }
+        .day-card:nth-child(7) {
+            animation-delay: 0.26s;
+        }
+
+        @keyframes slide-up {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .day-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .day-name {
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: background var(--transition);
+        }
+
+        .day-name:hover {
+            background: var(--surface-hover);
+        }
+
+        .day-progress {
+            font-size: 13px;
+            color: var(--text-secondary);
             font-weight: 500;
-            color: #2d5b74;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 4px;
+            background: var(--border);
+            border-radius: 8px;
+            margin: 8px 0 14px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 8px;
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            width: 0%;
+        }
+
+        .exercise-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .exercise-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: var(--bg);
+            border: 1px solid transparent;
+            transition: all var(--transition);
+            cursor: default;
+        }
+
+        .exercise-item:hover {
+            background: var(--surface-hover);
+            border-color: var(--border);
+        }
+
+        .exercise-item .check {
+            width: 20px;
+            height: 20px;
+            border-radius: 6px;
+            border: 2px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: all var(--transition);
+            flex-shrink: 0;
+            background: var(--surface);
         }
 
-        /* pushups egen seksjon */
-        .pushups-seksjon {
-            background: #f1faf7;
-            border-radius: 20px;
-            padding: 12px 12px 8px 12px;
-            margin-top: 8px;
-            border-left: 5px solid #479f82;
-        }
-        .notis {
-            font-size: 0.68rem;
-            color: #2d705b;
-            margin-top: 8px;
-            padding-left: 4px;
+        .exercise-item .check.done {
+            background: var(--success);
+            border-color: var(--success);
         }
 
-        /* mobil optimalisering */
-        @media (max-width: 550px) {
-            body {
-                padding: 16px 12px 40px;
-            }
-            .ovelse-rad {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            .sett-gruppe {
-                align-self: flex-start;
-            }
-            .dag-navn {
-                font-size: 1.35rem;
-            }
-            .ovelse-tittel {
-                font-size: 0.95rem;
-            }
+        .exercise-item .check.done::after {
+            content: '✓';
+            color: white;
+            font-weight: 700;
+            font-size: 14px;
         }
 
-        footer {
-            margin-top: 28px;
-            text-align: center;
-            font-size: 0.7rem;
-            color: #7d98ab;
-            border-top: 1px solid #d4e2ec;
-            padding-top: 20px;
+        .exercise-info {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px 12px;
         }
-        button {
+
+        .exercise-name {
+            font-weight: 600;
+            cursor: pointer;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: background var(--transition);
+            font-size: 15px;
+        }
+
+        .exercise-name:hover {
+            background: var(--surface-hover);
+        }
+
+        .exercise-meta {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .exercise-meta span {
+            cursor: pointer;
+            padding: 0 4px;
+            border-radius: 4px;
+            transition: background var(--transition);
+        }
+
+        .exercise-meta span:hover {
+            background: var(--surface-hover);
+        }
+
+        .exercise-delete {
+            opacity: 0;
             background: none;
             border: none;
-            font-family: inherit;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 6px;
+            border-radius: 6px;
+            transition: all var(--transition);
+        }
+
+        .exercise-item:hover .exercise-delete {
+            opacity: 1;
+        }
+
+        .exercise-delete:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .add-exercise {
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .add-exercise input {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 14px;
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            outline: none;
+            transition: border var(--transition);
+        }
+
+        .add-exercise input:focus {
+            border-color: var(--primary);
+        }
+
+        .add-exercise .btn {
+            flex-shrink: 0;
+        }
+
+        /* edit mode : everything becomes editable */
+        .editable {
+            cursor: text;
+            position: relative;
+            transition: all var(--transition);
+        }
+
+        .editable:hover {
+            background: rgba(59, 130, 246, 0.06);
+            border-radius: 6px;
+        }
+
+        .editable-input {
+            background: var(--surface);
+            border: 2px solid var(--primary);
+            border-radius: 6px;
+            padding: 2px 6px;
+            font: inherit;
+            color: var(--text);
+            outline: none;
+            width: auto;
+            min-width: 40px;
+            max-width: 100%;
+        }
+
+        .editable-input:focus {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        /* empty state */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+
+        /* responsive */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 22px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 6px 14px;
+            }
+            .day-card {
+                padding: 16px;
+            }
+            .exercise-item {
+                flex-wrap: wrap;
+            }
+            .exercise-info {
+                width: 100%;
+            }
+            .exercise-delete {
+                opacity: 1;
+            }
+        }
+
+        /* theme toggle */
+        .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 40px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 18px;
+            color: var(--text);
+            transition: all var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover {
+            transform: rotate(12deg);
+        }
+
+        /* footer */
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            padding-top: 20px;
+        }
+
+        .footer button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: underline dotted;
+            padding: 4px 8px;
+            transition: color var(--transition);
+        }
+
+        .footer button:hover {
+            color: var(--text);
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="site-header">
-        <h1>Ukeplan trening</h1>
-        <div class="regel">3 sett · 8–12 reps</div>
+    <div class="app" id="app">
+        <!-- header -->
+        <header class="header">
+            <div class="header-left">
+                <h1 class="editable" data-field="title" contenteditable="false">Ukeplan</h1>
+                <span id="editBadge" class="edit-badge" style="display:none;">Redigerer</span>
+            </div>
+            <div class="header-actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Bytt tema">🌓</button>
+                <button class="btn btn-edit" id="editToggle">✎ Rediger</button>
+                <button class="btn btn-danger" id="resetBtn">🔄 Nullstill</button>
+            </div>
+        </header>
+
+        <!-- day grid -->
+        <div class="day-grid" id="dayGrid"></div>
+
+        <!-- footer -->
+        <div class="footer">
+            <button id="exportBtn">📥 Eksporter JSON</button>
+            <button id="importBtn">📤 Importer JSON</button>
+            <input type="file" id="importFile" accept=".json" style="display:none;" />
+        </div>
     </div>
 
-    <button class="reset-knapp" id="nullstillKnapp">Fjern alle avkrysninger</button>
+    <script>
+        (function() {
+            'use strict';
 
-    <div id="ukeContainer"></div>
-    <footer>Onsdag = hviledag</footer>
-</div>
+            // --- DATA ---
+            const DEFAULT_DATA = {
+                title: 'Ukeplan',
+                days: [
+                    { name: 'Mandag', exercises: [{ name: 'Benkpress', sets: 3, reps: '8-12', weight: 60 }] },
+                    { name: 'Tirsdag', exercises: [{ name: 'Markløft', sets: 3, reps: '6-8', weight: 80 }] },
+                    { name: 'Onsdag', exercises: [{ name: 'Hvile', sets: 0, reps: '-', weight: 0 }] },
+                    { name: 'Torsdag', exercises: [{ name: 'Skulderpress', sets: 3, reps: '10-12', weight: 30 }] },
+                    { name: 'Fredag', exercises: [{ name: 'Pull-ups', sets: 3, reps: '8-12', weight: 0 }] },
+                    { name: 'Lørdag', exercises: [{ name: 'Knebøy', sets: 4, reps: '8-10', weight: 70 }] },
+                    { name: 'Søndag', exercises: [{ name: 'Roing', sets: 3, reps: '10-12', weight: 50 }] }
+                ]
+            };
 
-<script>
-    // ----- ØVELSESLISTE (enkel norsk) -----
-    const BRYST_TRICEPS = [
-        "Incline chest press",
-        "Pec fly",
-        "High to low cable fly",
-        "Triceps rope extensions",
-        "Overhead triceps (V-bar / straight bar)"
-    ];
+            // --- STATE ---
+            let state = loadState();
+            let editMode = false;
+            let currentEditTarget = null;
 
-    const RYGG_BICEPS = [
-        "Lat pull down (mag grep)",
-        "Close grip row",
-        "Chest supported row",
-        "Preacher curl maskin",
-        "Incline bicep curl",
-        "Rope hammer curls"
-    ];
-
-    const BEIN_SKULDRER = [
-        "Squat",
-        "Back extensions",
-        "Leg extension",
-        "Liggende leg curl",
-        "Legghevinger (calf raises)"
-    ];
-
-    const PUSHUPS_NAVN = "Push ups";
-
-    // ------ UKEOPPSETT: kun Onsdag hvile, torsdag blir treningsdag ------
-    // Mandag: bryst/triceps, Tirsdag: rygg/biceps, Onsdag: HVIL, Torsdag: bein/skuldre,
-    // Fredag: bryst/triceps, Lørdag: rygg/biceps, Søndag: bein/skuldre
-    const ukePlan = [
-        { dag: "Mandag", type: "trening", ovelser: BRYST_TRICEPS, pushups: true },
-        { dag: "Tirsdag", type: "trening", ovelser: RYGG_BICEPS, pushups: true },
-        { dag: "Onsdag", type: "hvile" },
-        { dag: "Torsdag", type: "trening", ovelser: BEIN_SKULDRER, pushups: true },
-        { dag: "Fredag", type: "trening", ovelser: BRYST_TRICEPS, pushups: true },
-        { dag: "Lørdag", type: "trening", ovelser: RYGG_BICEPS, pushups: true },
-        { dag: "Søndag", type: "trening", ovelser: BEIN_SKULDRER, pushups: true }
-    ];
-
-    // Hjelpefunksjon: lag 3 sjekkbokser (sett 1,2,3)
-    function lagSettSjekkbokser() {
-        const div = document.createElement('div');
-        div.className = 'sett-gruppe';
-        for (let i = 1; i <= 3; i++) {
-            const id = `cb_${Date.now()}_${Math.random()}_${i}`;
-            const settDiv = document.createElement('div');
-            settDiv.className = 'sett-item';
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = id;
-            const label = document.createElement('label');
-            label.htmlFor = id;
-            label.textContent = `Sett ${i}`;
-            settDiv.appendChild(checkbox);
-            settDiv.appendChild(label);
-            div.appendChild(settDiv);
-        }
-        return div;
-    }
-
-    // Lager en rad for én øvelse
-    function lagOvelseRad(ovelseNavn) {
-        const rad = document.createElement('div');
-        rad.className = 'ovelse-rad';
-
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'ovelse-info';
-        const tittel = document.createElement('div');
-        tittel.className = 'ovelse-tittel';
-        tittel.textContent = ovelseNavn;
-        const repTekst = document.createElement('div');
-        repTekst.className = 'sett-rep-tekst';
-        repTekst.textContent = '3 sett · 8–12 reps';
-        infoDiv.appendChild(tittel);
-        infoDiv.appendChild(repTekst);
-
-        const settBoks = lagSettSjekkbokser();
-
-        rad.appendChild(infoDiv);
-        rad.appendChild(settBoks);
-        return rad;
-    }
-
-    // Seksjon for pushups (etter alle øvelser)
-    function lagPushupsSeksjon() {
-        const wrapper = document.createElement('div');
-        wrapper.className = 'pushups-seksjon';
-        
-        const rad = document.createElement('div');
-        rad.className = 'ovelse-rad';
-        rad.style.borderBottom = 'none';
-        rad.style.paddingBottom = '0';
-        
-        const infoDiv = document.createElement('div');
-        infoDiv.className = 'ovelse-info';
-        const tittel = document.createElement('div');
-        tittel.className = 'ovelse-tittel';
-        tittel.style.color = '#2a7a62';
-        tittel.style.fontWeight = '700';
-        tittel.textContent = PUSHUPS_NAVN;
-        const repTekst = document.createElement('div');
-        repTekst.className = 'sett-rep-tekst';
-        repTekst.textContent = '3 sett · 8–12 reps (etter hovedøvelsene)';
-        infoDiv.appendChild(tittel);
-        infoDiv.appendChild(repTekst);
-        
-        const settBoks = lagSettSjekkbokser();
-        rad.appendChild(infoDiv);
-        rad.appendChild(settBoks);
-        
-        const litenNotis = document.createElement('div');
-        litenNotis.className = 'notis';
-        litenNotis.textContent = 'Gjør armhevinger etter alle øvelser, 3 x 8-12.';
-        
-        wrapper.appendChild(rad);
-        wrapper.appendChild(litenNotis);
-        return wrapper;
-    }
-
-    // Opprett dagskort
-    function lagDagKort(dagData) {
-        const kort = document.createElement('div');
-        kort.className = 'dag-kort';
-
-        // Header
-        const header = document.createElement('div');
-        header.className = 'dag-header';
-        const navnSpan = document.createElement('div');
-        navnSpan.className = 'dag-navn';
-        navnSpan.textContent = dagData.dag;
-        header.appendChild(navnSpan);
-        kort.appendChild(header);
-
-        if (dagData.type === 'hvile') {
-            const hvilDiv = document.createElement('div');
-            hvilDiv.className = 'hvile-boks';
-            hvilDiv.textContent = 'Hviledag - ingen trening. Restitusjon.';
-            kort.appendChild(hvilDiv);
-        } 
-        else if (dagData.type === 'trening') {
-            const listeDiv = document.createElement('div');
-            listeDiv.className = 'ovelser-liste';
-            
-            // Hovedøvelser
-            dagData.ovelser.forEach(ovelse => {
-                listeDiv.appendChild(lagOvelseRad(ovelse));
-            });
-            
-            // Push-ups etter alle (alltid true for treningsdager)
-            if (dagData.pushups) {
-                listeDiv.appendChild(lagPushupsSeksjon());
+            function loadState() {
+                try {
+                    const raw = localStorage.getItem('ukeplan_data');
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (parsed && parsed.days && Array.isArray(parsed.days)) {
+                            return parsed;
+                        }
+                    }
+                } catch (_) { /* ignore */ }
+                return JSON.parse(JSON.stringify(DEFAULT_DATA));
             }
-            kort.appendChild(listeDiv);
-        }
-        return kort;
-    }
 
-    // Bygg hele ukens plan
-    function byggUkeplan() {
-        const container = document.getElementById('ukeContainer');
-        container.innerHTML = '';
-        ukePlan.forEach(dag => {
-            const kort = lagDagKort(dag);
-            container.appendChild(kort);
-        });
-    }
+            function saveState() {
+                try {
+                    localStorage.setItem('ukeplan_data', JSON.stringify(state));
+                } catch (_) { /* ignore */ }
+            }
 
-    // Nullstill alle haker
-    function nullstillAlleHaker() {
-        const alleCheckbox = document.querySelectorAll('#ukeContainer input[type="checkbox"]');
-        alleCheckbox.forEach(cb => {
-            cb.checked = false;
-        });
-    }
+            // --- RENDER ---
+            function render() {
+                const grid = document.getElementById('dayGrid');
+                if (!grid) return;
 
-    // initialiser
-    function init() {
-        byggUkeplan();
-        const resetBtn = document.getElementById('nullstillKnapp');
-        if (resetBtn) {
-            resetBtn.addEventListener('click', nullstillAlleHaker);
-        }
-    }
+                // update title
+                const titleEl = document.querySelector('[data-field="title"]');
+                if (titleEl) titleEl.textContent = state.title || 'Ukeplan';
 
-    document.addEventListener('DOMContentLoaded', init);
-</script>
+                grid.innerHTML = '';
+
+                state.days.forEach((day, dayIdx) => {
+                    const card = document.createElement('div');
+                    card.className = 'day-card';
+
+                    // count done
+                    const total = day.exercises.length;
+                    const done = day.exercises.filter(e => e.done).length;
+                    const pct = total === 0 ? 0 : Math.round((done / total) * 100);
+
+                    card.innerHTML = `
+                <div class="day-header">
+                  <span class="day-name editable" data-day="${dayIdx}" data-field="dayName">${day.name}</span>
+                  <span class="day-progress">${done}/${total}</span>
+                </div>
+                <div class="progress-track">
+                  <div class="progress-fill" style="width:${pct}%;"></div>
+                </div>
+                <div class="exercise-list" data-day="${dayIdx}">
+                  ${day.exercises.map((ex, exIdx) => `
+                    <div class="exercise-item" data-day="${dayIdx}" data-ex="${exIdx}">
+                      <span class="check ${ex.done ? 'done' : ''}" data-day="${dayIdx}" data-ex="${exIdx}"></span>
+                      <div class="exercise-info">
+                        <span class="exercise-name editable" data-day="${dayIdx}" data-ex="${exIdx}" data-field="exName">${ex.name}</span>
+                        <span class="exercise-meta">
+                          <span class="editable" data-day="${dayIdx}" data-ex="${exIdx}" data-field="exSets">${ex.sets}</span> sett ·
+                          <span class="editable" data-day="${dayIdx}" data-ex="${exIdx}" data-field="exReps">${ex.reps}</span> reps ·
+                          <span class="editable" data-day="${dayIdx}" data-ex="${exIdx}" data-field="exWeight">${ex.weight}</span> kg
+                        </span>
+                      </div>
+                      <button class="exercise-delete" data-day="${dayIdx}" data-ex="${exIdx}">✕</button>
+                    </div>
+                  `).join('')}
+                </div>
+                <div class="add-exercise">
+                  <input type="text" placeholder="Ny øvelse..." class="add-input" data-day="${dayIdx}" />
+                  <button class="btn btn-primary add-btn" data-day="${dayIdx}">+ Legg til</button>
+                </div>
+              `;
+
+                    grid.appendChild(card);
+                });
+
+                // attach events
+                attachEvents();
+
+                // update edit mode UI
+                const badge = document.getElementById('editBadge');
+                if (badge) {
+                    badge.style.display = editMode ? 'inline-block' : 'none';
+                }
+                const editBtn = document.getElementById('editToggle');
+                if (editBtn) {
+                    editBtn.classList.toggle('active', editMode);
+                    editBtn.textContent = editMode ? '✓ Ferdig rediger' : '✎ Rediger';
+                }
+
+                // make editable fields interactive
+                if (editMode) {
+                    enableEditing();
+                } else {
+                    disableEditing();
+                }
+            }
+
+            // --- EVENT ATTACHMENT ---
+            function attachEvents() {
+                // check toggle
+                document.querySelectorAll('.check').forEach(el => {
+                    el.removeEventListener('click', handleCheck);
+                    el.addEventListener('click', handleCheck);
+                });
+
+                // delete exercise
+                document.querySelectorAll('.exercise-delete').forEach(el => {
+                    el.removeEventListener('click', handleDelete);
+                    el.addEventListener('click', handleDelete);
+                });
+
+                // add exercise
+                document.querySelectorAll('.add-btn').forEach(el => {
+                    el.removeEventListener('click', handleAdd);
+                    el.addEventListener('click', handleAdd);
+                });
+                document.querySelectorAll('.add-input').forEach(el => {
+                    el.removeEventListener('keydown', handleAddKey);
+                    el.addEventListener('keydown', handleAddKey);
+                });
+
+                // edit mode toggles
+                const editBtn = document.getElementById('editToggle');
+                if (editBtn) {
+                    editBtn.removeEventListener('click', toggleEditMode);
+                    editBtn.addEventListener('click', toggleEditMode);
+                }
+
+                // reset
+                const resetBtn = document.getElementById('resetBtn');
+                if (resetBtn) {
+                    resetBtn.removeEventListener('click', handleReset);
+                    resetBtn.addEventListener('click', handleReset);
+                }
+
+                // theme
+                const themeBtn = document.getElementById('themeToggle');
+                if (themeBtn) {
+                    themeBtn.removeEventListener('click', toggleTheme);
+                    themeBtn.addEventListener('click', toggleTheme);
+                }
+
+                // export / import
+                const exportBtn = document.getElementById('exportBtn');
+                if (exportBtn) {
+                    exportBtn.removeEventListener('click', handleExport);
+                    exportBtn.addEventListener('click', handleExport);
+                }
+                const importBtn = document.getElementById('importBtn');
+                if (importBtn) {
+                    importBtn.removeEventListener('click', handleImportClick);
+                    importBtn.addEventListener('click', handleImportClick);
+                }
+                const importFile = document.getElementById('importFile');
+                if (importFile) {
+                    importFile.removeEventListener('change', handleImportFile);
+                    importFile.addEventListener('change', handleImportFile);
+                }
+            }
+
+            // --- HANDLERS ---
+            function handleCheck(e) {
+                const el = e.currentTarget;
+                const dayIdx = parseInt(el.dataset.day);
+                const exIdx = parseInt(el.dataset.ex);
+                if (isNaN(dayIdx) || isNaN(exIdx)) return;
+
+                const day = state.days[dayIdx];
+                if (!day) return;
+                const ex = day.exercises[exIdx];
+                if (!ex) return;
+
+                ex.done = !ex.done;
+                saveState();
+                render();
+            }
+
+            function handleDelete(e) {
+                const el = e.currentTarget;
+                const dayIdx = parseInt(el.dataset.day);
+                const exIdx = parseInt(el.dataset.ex);
+                if (isNaN(dayIdx) || isNaN(exIdx)) return;
+
+                const day = state.days[dayIdx];
+                if (!day) return;
+                day.exercises.splice(exIdx, 1);
+                saveState();
+                render();
+            }
+
+            function handleAdd(e) {
+                const btn = e.currentTarget;
+                const dayIdx = parseInt(btn.dataset.day);
+                const container = btn.closest('.day-card');
+                const input = container ? container.querySelector('.add-input') : null;
+                if (!input) return;
+
+                const val = input.value.trim();
+                if (!val) return;
+
+                const day = state.days[dayIdx];
+                if (!day) return;
+
+                day.exercises.push({ name: val, sets: 3, reps: '8-12', weight: 0, done: false });
+                input.value = '';
+                saveState();
+                render();
+            }
+
+            function handleAddKey(e) {
+                if (e.key === 'Enter') {
+                    const input = e.currentTarget;
+                    const btn = input.closest('.day-card').querySelector('.add-btn');
+                    if (btn) btn.click();
+                }
+            }
+
+            function toggleEditMode() {
+                editMode = !editMode;
+                if (!editMode) {
+                    // save any pending edits
+                    saveState();
+                }
+                render();
+            }
+
+            function handleReset() {
+                if (!confirm('Tilbakestill til standard øvelser?')) return;
+                state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                saveState();
+                render();
+            }
+
+            function toggleTheme() {
+                document.body.classList.toggle('dark');
+                try {
+                    localStorage.setItem('ukeplan_theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+                } catch (_) { /* ignore */ }
+            }
+
+            function handleExport() {
+                const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ukeplan.json';
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+
+            function handleImportClick() {
+                document.getElementById('importFile').click();
+            }
+
+            function handleImportFile(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    try {
+                        const data = JSON.parse(ev.target.result);
+                        if (data && data.days && Array.isArray(data.days)) {
+                            state = data;
+                            saveState();
+                            render();
+                        } else {
+                            alert('Ugyldig JSON-fil.');
+                        }
+                    } catch (_) {
+                        alert('Kunne ikke lese filen.');
+                    }
+                };
+                reader.readAsText(file);
+                e.target.value = '';
+            }
+
+            // --- EDIT MODE (inline editing) ---
+            function enableEditing() {
+                document.querySelectorAll('.editable').forEach(el => {
+                    el.contentEditable = 'true';
+                    el.style.outline = '2px dashed rgba(59,130,246,0.25)';
+                    el.style.outlineOffset = '2px';
+                    el.style.borderRadius = '4px';
+                    el.addEventListener('blur', handleEditBlur);
+                    el.addEventListener('keydown', handleEditKeydown);
+                });
+            }
+
+            function disableEditing() {
+                document.querySelectorAll('.editable').forEach(el => {
+                    el.contentEditable = 'false';
+                    el.style.outline = 'none';
+                    el.style.outlineOffset = '0';
+                    el.removeEventListener('blur', handleEditBlur);
+                    el.removeEventListener('keydown', handleEditKeydown);
+                });
+            }
+
+            function handleEditBlur(e) {
+                const el = e.currentTarget;
+                saveEdit(el);
+            }
+
+            function handleEditKeydown(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.currentTarget.blur();
+                }
+                if (e.key === 'Escape') {
+                    e.currentTarget.textContent = e.currentTarget.dataset.oldValue || '';
+                    e.currentTarget.blur();
+                }
+            }
+
+            function saveEdit(el) {
+                const val = el.textContent.trim();
+                if (!val) return;
+
+                const field = el.dataset.field;
+                const dayIdx = el.dataset.day !== undefined ? parseInt(el.dataset.day) : undefined;
+                const exIdx = el.dataset.ex !== undefined ? parseInt(el.dataset.ex) : undefined;
+
+                if (field === 'title') {
+                    state.title = val;
+                    saveState();
+                    render();
+                    return;
+                }
+
+                if (dayIdx === undefined || isNaN(dayIdx)) return;
+                const day = state.days[dayIdx];
+                if (!day) return;
+
+                if (field === 'dayName') {
+                    day.name = val;
+                    saveState();
+                    render();
+                    return;
+                }
+
+                if (exIdx === undefined || isNaN(exIdx)) return;
+                const ex = day.exercises[exIdx];
+                if (!ex) return;
+
+                switch (field) {
+                    case 'exName':
+                        ex.name = val;
+                        break;
+                    case 'exSets':
+                        ex.sets = parseFloat(val) || 0;
+                        break;
+                    case 'exReps':
+                        ex.reps = val;
+                        break;
+                    case 'exWeight':
+                        ex.weight = parseFloat(val) || 0;
+                        break;
+                    default:
+                        return;
+                }
+
+                saveState();
+                render();
+            }
+
+            // --- THEME INIT ---
+            function initTheme() {
+                try {
+                    const saved = localStorage.getItem('ukeplan_theme');
+                    if (saved === 'dark') {
+                        document.body.classList.add('dark');
+                    }
+                } catch (_) { /* ignore */ }
+            }
+
+            // --- START ---
+            initTheme();
+            render();
+
+            // keyboard shortcut: Escape to exit edit mode
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && editMode) {
+                    toggleEditMode();
+                }
+            });
+
+        })();
+    </script>
 </body>
 </html>
