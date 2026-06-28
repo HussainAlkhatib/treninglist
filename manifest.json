@@ -1,12 +1,10 @@
 {
-  "name": "Ukeplan trening",
-  "short_name": "Trening",
-  "description": "Ukentlig sjekkliste for trening og restitusjon",
-  "start_url": "index.html",
+  "name": "Ukeplan",
+  "short_name": "Ukeplan",
+  "start_url": ".",
   "display": "standalone",
-  "background_color": "#eef2f5",
-  "theme_color": "#1a4b6e",
-  "orientation": "portrait",
+  "background_color": "#f1f5f9",
+  "theme_color": "#3b82f6",
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/2936/2936886.png",
